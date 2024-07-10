@@ -51,3 +51,7 @@ x-api-key: b462c35f781d44a137302b1a2fb9a7b4d13a24e9b2ca4007effe625088ffa133caf03
 x-client-id: 668ce9080dfc015d9af8cd86
 authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NjhjZTkwODBkZmMwMTVkOWFmOGNkODYiLCJlbWFpbCI6Ik5oTGluaDNAZ21haWwuY29tIiwiaWF0IjoxNzIwNTQyMDE0LCJleHAiOjE3MjA3MTQ4MTR9.ZKw-eYDsCDwhsR9gL4ntE7dlGRLjyUVtfke63U36-HM
 
+### getListSearchProducts 
+GET {{url_dev}}/search/jeans
+Content-Type: application/json
+x-api-key: b462c35f781d44a137302b1a2fb9a7b4d13a24e9b2ca4007effe625088ffa133caf03623250b09082b33c98c1b60b8b07f8e9aa5af21f23236b2a9e2c8ecf829

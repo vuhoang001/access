@@ -47,6 +47,15 @@ class ProductController {
       metadata: await ProductService2.findAllPublishForShop(req.user.UserId),
     }).send(res);
   };
+
+  getListSearchProducts = async (req, res, next) => {
+    new SuccessResponse({
+      message: "getListSearchProducts success!",
+      metadata: await ProductService2.searchProducts(
+        req.params.keySearch
+      ),
+    }).send(res);
+  };
   // END QUERY
 }
 
