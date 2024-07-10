@@ -10,10 +10,10 @@ router.post(
   "/publish/:id",
   AsyncHandle(ProductController.publishProductByShop)
 );
-/**
- * @desc Get all Drafts for shop
- * @return {JSON}
- */
+router.post(
+  "/unpublish/:id",
+  AsyncHandle(ProductController.unPublishProductByShop)
+);
 router.get("/drafts/all", AsyncHandle(ProductController.getAllDraftsForShop));
 router.get("/publish/all", AsyncHandle(ProductController.getAllPublishForShop));
 

@@ -14,10 +14,19 @@ class ProductController {
   };
 
   publishProductByShop = async (req, res, next) => {
-
     new SuccessResponse({
-      message: "Get publish product by shop success!",
+      message: "Post publish product by shop success!",
       metadata: await ProductService2.publishProductByShop(
+        req.user.UserId,
+        req.params.id
+      ),
+    }).send(res);
+  };
+
+  unPublishProductByShop = async (req, res, next) => {
+    new SuccessResponse({
+      message: "unPublishProductByShop by shop success!",
+      metadata: await ProductService2.unPublishProductByShop(
         req.user.UserId,
         req.params.id
       ),
