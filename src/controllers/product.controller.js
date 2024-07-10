@@ -1,9 +1,7 @@
 const { BadRequestError } = require("../core/error.response");
 const { SuccessResponse } = require("../core/success.response");
-const ProductService = require("../services/product.service");
 const ProductService2 = require("../services/product.service.xxx");
 
-const mongoose = require("mongoose");
 class ProductController {
   createProduct = async (req, res, next) => {
     new SuccessResponse({
@@ -15,13 +13,29 @@ class ProductController {
     }).send(res);
   };
 
+  publishProductByShop = async (req, res, next) => {
+
+    new SuccessResponse({
+      message: "Get publish product by shop success!",
+      metadata: await ProductService2.publishProductByShop(
+        req.user.UserId,
+        req.params.id
+      ),
+    }).send(res);
+  };
+
   //QUERY//
   getAllDraftsForShop = async (req, res, next) => {
     new SuccessResponse({
-      message: "Get list success!",
-      metadata: await ProductService2.findAllDraftsForShop({
-        product_shop: req.user.UserId,
-      }),
+      message: "Get list drafts success!",
+      metadata: await ProductService2.findAllDraftsForShop(req.user.UserId),
+    }).send(res);
+  };
+
+  getAllPublishForShop = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get list Publish success!",
+      metadata: await ProductService2.findAllPublishForShop(req.user.UserId),
     }).send(res);
   };
   // END QUERY

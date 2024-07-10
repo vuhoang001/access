@@ -6,7 +6,11 @@ const {
 } = require("../models/product.model");
 const { BadRequestError } = require("../core/error.response");
 
-const { findAllDraftsForShop } = require("../models/repository/product.repo");
+const {
+  findAllDraftsForShop,
+  publishProductByShop,
+  findAllPublishForShop,
+} = require("../models/repository/product.repo");
 
 class ProductFactory {
   static productRegistry = {};
@@ -23,9 +27,20 @@ class ProductFactory {
     return await new productClass(payload).createProduct();
   }
 
+  static async publishProductByShop(product_shop, product_id) {
+    console.log("Product_shop", product_shop)
+    console.log("product_id", product_id);
+    return await publishProductByShop(product_shop, product_id);
+  }
+
   static async findAllDraftsForShop(product_shop, limit = 50, skip = 0) {
-    const query = { product_shop, isDraft: true };
-    return await findAllDraftsForShop({ query, limit, skip });
+    const query = { product_shop: product_shop, isDraft: true };
+    return await findAllDraftsForShop(query, limit, skip);
+  }
+
+  static async findAllPublishForShop(product_shop, limit = 50, skip = 0) {
+    const query = { product_shop, isPublished: true };
+    return await findAllPublishForShop(query, limit, skip);
   }
 }
 
