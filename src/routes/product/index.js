@@ -4,9 +4,15 @@ const AsyncHandle = require("../../helpers/AsyncHandle");
 const { authentication } = require("../../auth/authUtils");
 const ProductController = require("../../controllers/product.controller");
 
-router.get("/search/:keySearch", AsyncHandle(ProductController.getListSearchProducts));
+router.get(
+  "/search/:keySearch",
+  AsyncHandle(ProductController.getListSearchProducts)
+);
+router.get("", AsyncHandle(ProductController.findAllProducts));
+router.get("/:product_id", AsyncHandle(ProductController.findProduct));
 
 router.use(authentication);
+
 router.post("/", AsyncHandle(ProductController.createProduct));
 router.post(
   "/publish/:id",
