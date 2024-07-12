@@ -13,4 +13,19 @@ const getUnSelectData = (select = []) => {
   return Object.fromEntries(select.map((el) => [el, 0]));
 };
 
-module.exports = { getInfoData, getSelectData, getUnSelectData };
+const cleanObject = (obj) => {
+  if (typeof obj !== "object" || obj === null) {
+    return obj;
+  }
+
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] === null || obj[key] === undefined) {
+      delete obj[key];
+    } else if (typeof obj[key] === "object") {
+      cleanObject(obj[key]);
+    }
+  });
+
+  return obj;
+};
+module.exports = { getInfoData, getSelectData, getUnSelectData, cleanObject };

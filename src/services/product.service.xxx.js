@@ -14,7 +14,10 @@ const {
   searchProductsByUser,
   findAllProducts,
   findProduct,
+  updateProductById,
 } = require("../models/repository/product.repo");
+
+const { cleanObject } = require("../utils/index");
 
 class ProductFactory {
   static productRegistry = {};
@@ -28,10 +31,16 @@ class ProductFactory {
     if (!productClass)
       throw new BadRequestError(`Invalid Product Type: ${type}`);
 
-    return await new productClass(payload).createProduct();
+    return await new productClass(payload).createProductV2();
   }
 
-  static async updateProduct() {}
+  static async updateProduct(type, payload, productId) {
+    const productClass = ProductFactory.productRegistry[type];
+    if (!productClass)
+      throw new BadRequestError(`Invalid Product Type: ${type}`);
+
+    return await new productClass(payload).updateProduct(productId);
+  }
 
   static async publishProductByShop(product_shop, product_id) {
     return await publishProductByShop(product_shop, product_id);
@@ -95,6 +104,47 @@ class Product {
   async createProduct(product_id) {
     return await product.create({ ...this, _id: product_id });
   }
+
+  async createProductAndDocument(model, attributes, shopId) {
+    const newDocument = await model.create({
+      ...attributes.product_attributes,
+      product_shop: shopId,
+    });
+    if (!newDocument) throw new BadRequestError(`Failed to create ${model}`);
+
+    const newProduct = await product.create({
+      ...attributes,
+      _id: newDocument._id,
+    });
+    if (!newProduct) throw new BadRequestError(`Failed to create product`);
+    return newProduct;
+  }
+
+  async updateProductAndDocument(model, bodyUpdate, productShop, productId) {
+    const holderProduct = await product.findOne({
+      _id: productId,
+    });
+    if (!holderProduct) throw new BadRequestError("Can not find product");
+    if (bodyUpdate.product_attributes) {
+      const cleanedProductAttributes = cleanObject(
+        bodyUpdate.product_attributes
+      );
+
+      await updateProductById(
+        productId,
+        { product_attributes: cleanedProductAttributes },
+        model // furniture , clothing
+      );
+    }
+
+    const updateProductModel = await updateProductById(
+      productId,
+      cleanObject(bodyUpdate),
+      product
+    );
+
+    return updateProductModel;
+  }
 }
 
 class Clothing extends Product {
@@ -113,6 +163,23 @@ class Clothing extends Product {
     }
 
     return newProduct;
+  }
+
+  async createProductV2() {
+    return await this.createProductAndDocument(
+      clothing,
+      this,
+      this.product_shop
+    );
+  }
+
+  async updateProduct(productId) {
+    return await this.updateProductAndDocument(
+      clothing,
+      this,
+      this.product_shop,
+      productId
+    );
   }
 }
 
@@ -134,6 +201,23 @@ class Electronic extends Product {
 
     return newProduct;
   }
+
+  async createProductV2() {
+    return await this.createProductAndDocument(
+      electronic,
+      this,
+      this.product_shop
+    );
+  }
+
+  async updateProduct(productId) {
+    return await this.updateProductAndDocument(
+      electronic,
+      this,
+      this.product_shop,
+      productId
+    );
+  }
 }
 
 class Furniture extends Product {
@@ -153,6 +237,23 @@ class Furniture extends Product {
     }
 
     return newProduct;
+  }
+
+  async createProductV2() {
+    return await this.createProductAndDocument(
+      furniture,
+      this,
+      this.product_shop
+    );
+  }
+
+  async updateProduct(productId) {
+    return await this.updateProductAndDocument(
+      furniture,
+      this,
+      this.product_shop,
+      productId
+    );
   }
 }
 

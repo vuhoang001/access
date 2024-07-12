@@ -13,6 +13,20 @@ class ProductController {
     }).send(res);
   };
 
+  updateProduct = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Update Product success",
+      metadata: await ProductService2.updateProduct(
+        req.body.product_type,
+        {
+          ...req.body,
+          product_shop: req.user.UserId,
+        },
+        req.params.product_id
+      ),
+    }).send(res);
+  };
+
   publishProductByShop = async (req, res, next) => {
     new SuccessResponse({
       message: "Post publish product by shop success!",
