@@ -17,6 +17,8 @@ const {
   updateProductById,
 } = require("../models/repository/product.repo");
 
+const { insertInventory } = require("../models/repository/inventory.repo");
+
 const { cleanObject } = require("../utils/index");
 
 class ProductFactory {
@@ -117,6 +119,15 @@ class Product {
       _id: newDocument._id,
     });
     if (!newProduct) throw new BadRequestError(`Failed to create product`);
+    const location = "";
+    const newInventory = await insertInventory(
+      newProduct._id,
+      location,
+      this.product_quantity,
+      shopId
+    );
+
+    if (!newInventory) throw new BadRequestError("Failed to create inventory");
     return newProduct;
   }
 
