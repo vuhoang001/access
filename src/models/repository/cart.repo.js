@@ -51,9 +51,18 @@ const deleteCartById = async ({ userId, productId }) => {
 const getListProductsInCart = async ({ userId }) => {
   return await cartModel.find({ cart_userId: userId });
 };
+
+const findCartById = async (cartId) => {
+  return await cartModel.findOne({
+    _id: convertToObjectIdMongose(cartId),
+    cart_state: "active",
+  });
+};
+
 module.exports = {
   createUserCart,
   updateUserCartQuantity,
   deleteCartById,
   getListProductsInCart,
+  findCartById,
 };
