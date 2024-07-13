@@ -1,8 +1,5 @@
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const mongoose = require("mongoose");
-
-const keyTokenModel = require("../models/keyToken.model");
 
 const ShopService = require("../services/shop.service");
 const KeyTokenService = require("../services/keyToken.service");
@@ -141,7 +138,7 @@ class AccessService {
       keyStore.privateKey
     );
 
-    const holderTokens = await KeyTokenService.findById(foundShop._id)
+    const holderTokens = await KeyTokenService.findById(foundShop._id);
     const res = await holderTokens.updateOne({
       $set: {
         refreshToken: tokens.refreshToken,

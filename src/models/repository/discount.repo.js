@@ -26,7 +26,7 @@ const findAllDiscountCodeUnSelect = async ({
   page = 1,
   sort = "ctime",
   filter,
-  unSelect
+  unSelect,
 }) => {
   const skip = (page - 1) * limit;
   const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
@@ -39,4 +39,13 @@ const findAllDiscountCodeUnSelect = async ({
 
   return products;
 };
-module.exports = { findAllDiscountCodeUnSelect, findAllDiscountCodeSelect };
+
+const checkDiscountExists = async (filter) => {
+  return await discountModel.findOne({ filter });
+};
+
+module.exports = {
+  findAllDiscountCodeUnSelect,
+  findAllDiscountCodeSelect,
+  checkDiscountExists,
+};

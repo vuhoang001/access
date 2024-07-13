@@ -5,6 +5,7 @@ const { findAllProducts } = require("../models/repository/product.repo");
 const {
   findAllDiscountCodeSelect,
   findAllDiscountCodeUnSelect,
+  checkDiscountExists,
 } = require("../models/repository/discount.repo");
 
 const { convertToObjectIdMongose } = require("../utils/index");
@@ -18,7 +19,7 @@ const { convertToObjectIdMongose } = require("../utils/index");
  * 6 - Cancel discount code [ User ]
  */
 
-class DiscountClass {
+class DiscountService {
   static async createDiscountCode(payload) {
     const {
       code,
@@ -123,11 +124,100 @@ class DiscountClass {
         discount_shopId: convertToObjectIdMongose(shopId),
         discount_is_active: true,
       },
-      unSelect: ["__v", "discount_shopId"]
+      unSelect: ["__v", "discount_shopId"],
     });
 
     return discounts;
   }
+
+  static async getDiscountAmount({ code, userId, shopId, products }) {
+    const foundDiscount = await checkDiscountExists({
+      discount_shopId: convertToObjectIdMongose(shopId),
+      discount_code: code,
+    });
+
+    if (!foundDiscount) throw new NotfoundError("Discount doesnt exists!");
+
+    const {
+      discount_is_active,
+      discount_max_uses,
+      discount_start_date,
+      discount_end_date,
+      discount_min_order_value,
+      discount_users_used,
+      discount_type,
+      discount_value,
+    } = foundDiscount;
+
+    if (!discount_is_active) throw new NotfoundError("Discount expired!");
+
+    if (!discount_max_uses) throw new NotfoundError("Discounts are out!");
+
+    if (
+      new Date() < new date(discount_start_date) ||
+      new Date() > new Date(discount_end_date)
+    )
+      throw new NotfoundError("Discount ecode has exprired!");
+
+    let totalOrder = 0;
+    if (discount_min_order_value > 0) {
+      totalOrder = products.reduce((acc, product) => {
+        return acc + product.quantity * product.price;
+      }, 0);
+
+      if (totalOrder < discount_min_order_value)
+        throw new NotfoundError(
+          `discount required a minium order value of ${discount_min_order_value}`
+        );
+    }
+
+    if (discount_max_user_per_users > 0) {
+      const userUserDiscount = discount_users_used.find(
+        (user) => user.userId === userId
+      );
+
+      if (userUserDiscount) throw new BadRequestError("Cant use this discount");
+    }
+
+    const amount =
+      discount_type === "fixed_amount"
+        ? discount_value
+        : totalOrder * (discount_value / 100);
+
+    return {
+      totalOrder,
+      discount: amount,
+      totalPrice: totalPrice - amount,
+    };
+  }
+
+  static async deleteDiscountcode({ shopId, codeId }) {
+    console.log(shopId);
+    console.log(codeId);
+    return await discountModel.findOneAndDelete({
+      discount_code: codeId,
+      discount_shopId: convertToObjectIdMongose(shopId),
+    });
+  }
+
+  static async cancelDiscountCode({ codeId, shopId, userId }) {
+    const foundDiscount = await checkDiscountExists({
+      discount_code: codeId,
+      discount_shopId: shopId,
+    });
+
+    if (!foundDiscount) throw new BadRequestError("Discount doesnt exists");
+
+    const result = await discountModel.findByIdAndUpdate(foundDiscount._id, {
+      $pull: {
+        discount_users_used: userId,
+      },
+      $inc: {
+        discount_max_uses: 1,
+        discount_users_count: -1,
+      },
+    });
+  }
 }
 
-module.exports = DiscountClass;
+module.exports = DiscountService;
